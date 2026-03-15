@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>The Local Shop · Fresh Finds</title>
+    <!-- Font Awesome Icons (v6 free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Font: modern, clean -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            background: #f7f7f9;
+            color: #1e1e2a;
+            line-height: 1.5;
+            scroll-behavior: smooth;
+        }
+        /* header */
+        .shop-header {
+            position: sticky;
+            top: 0;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            padding: 0.9rem 6%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 110;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .logo h1 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(145deg, #121212, #2b2b3a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo .tagline {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #5e5e71;
+            margin-top: 2px;
+            letter-spacing: 0.2px;
+        }
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.7rem;
+            color: #1e1e2a;
+            transition: transform 0.2s;
+            padding: 6px 10px;
+            border-radius: 40px;
+            background: white;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.04);
+        }
+        .cart-icon:hover {
+            transform: scale(1.03);
+        }
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -2px;
+            background: #d93b3b;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 40px;
+            min-width: 22px;
+            text-align: center;
+            border: 2px solid white;
+        }
+        /* Hero */
+        .hero {
+            min-height: 85vh;
+            background: linear-gradient(107deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 100%), url('https://i.ibb.co/dsQZJFcd/jacek-dylag-jo8-C9bt3uo8-unsplash.jpg') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            padding: 0 6%;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .hero-content {
+            max-width: 700px;
+        }
+        .hero-content h2 {
+            font-size: clamp(2.5rem, 10vw, 4.8rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+        }
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        .shop-now-btn {
+            background: #ffffff;
+            border: none;
+            color: #1a1a2a;
+            padding: 1rem 3rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+            display: inline-block;
+            text-decoration: none;
+        }
+        .shop-now-btn:hover {
+            background: #f1f1f1;
+            transform: translateY(-4px);
+        }
+        /* section titles */
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin: 2.5rem 6% 1.5rem;
+            letter-spacing: -0.02em;
+        }
+        /* product carousel */
+        .carousel-container {
+            position: relative;
+            margin: 0 6% 3rem;
+        }
+        .carousel {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 1rem;
+            scrollbar-width: thin;
+        }
+        .carousel::-webkit-scrollbar {
+            height: 6px;
+        }
+        .carousel::-webkit-scrollbar-thumb {
+            background: #c0c0d0;
+            border-radius: 20px;
+        }
+        .product-card {
+            flex: 0 0 240px;
+            scroll-snap-align: start;
+            background: white;
+            border-radius: 24px;
+            padding: 1.2rem 1rem 1.5rem;
+            box-shadow: 0 14px 34px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+        .product-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 28px 38px rgba(0,0,0,0.08);
+        }
+        .product-img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 20px;
+            background: #f0f0f5;
+            margin-bottom: 1rem;
+        }
+        .product-name {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 0.2rem;
+        }
+        .product-price {
+            font-weight: 600;
+            color: #2a2a3b;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        .add-to-cart {
+            background: #1e1e2a;
+            border: none;
+            color: white;
+            padding: 0.7rem 0;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .add-to-cart:hover {
+            background: #34344a;
+        }
+        .carousel-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin: 0.5rem 6% 2rem;
+        }
+        .carousel-btn {
+            background: white;
+            border: 1px solid #ddddee;
+            padding: 0.8rem 1.4rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.02);
+        }
+        .carousel-btn:hover {
+            background: #f3f3f9;
+        }
+        /* cart drawer */
+        .drawer-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(3px);
+            z-index: 200;
+            display: none;
+        }
+        .cart-drawer {
+            position: fixed;
+            top: 0; right: -100%;
+            width: 92%;
+            max-width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+            z-index: 210;
+            padding: 2rem 1.5rem;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .cart-drawer.open {
+            right: 0;
+        }
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .drawer-header h3 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        .close-drawer {
+            font-size: 2rem;
+            line-height: 1;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0 10px;
+        }
+        .cart-items-list {
+            flex: 1;
+            list-style: none;
+            margin-bottom: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            background: #f6f6fa;
+            padding: 0.7rem 1rem;
+            border-radius: 20px;
+            align-items: center;
+        }
+        .cart-item-info {
+            font-weight: 600;
+        }
+        .cart-item-price {
+            color: #323248;
+        }
+        .remove-item {
+            color: #a00;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+        .customer-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin: 1.5rem 0 1rem;
+        }
+        .customer-fields input {
+            padding: 1rem 1.2rem;
+            border: 1px solid #dedeea;
+            border-radius: 40px;
+            font-size: 1rem;
+            background: #fafafd;
+        }
+        .send-order-btn {
+            background: #1e1e2a;
+            color: white;
+            border: none;
+            padding: 1.1rem;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin: 1rem 0 0.8rem;
+            transition: 0.2s;
+        }
+        .send-order-btn:hover {
+            background: #000;
+        }
+        .upi-section {
+            margin: 1rem 0;
+            padding: 1.2rem;
+            background: #f0f4fe;
+            border-radius: 28px;
+            text-align: center;
+        }
+        .upi-btn {
+            background: #1d4ed8;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+        .qr-code img {
+            width: 140px;
+            height: 140px;
+            border-radius: 24px;
+            margin: 10px auto;
+            border: 2px solid white;
+        }
+        .hidden {
+            display: none;
+        }
+        /* whatsapp float */
+        .wa-float {
+            position: fixed;
+            bottom: 30px;
+            right: 20px;
+            background: #25D366;
+            color: white;
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 2.2rem;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+            z-index: 150;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .wa-float:hover {
+            transform: scale(1.1);
+            background: #20b859;
+        }
+        /* footer / extra */
+        .mini-nav {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            padding: 2.5rem 6% 2rem;
+            color: #5b5b70;
+            font-weight: 500;
+        }
+        .mini-nav a {
+            color: inherit;
+            text-decoration: none;
+        }
+        hr {
+            border: 0.5px solid #eaeaf0;
+            margin: 0 6%;
+        }
+    </style>
+</head>
+<body>
+    <!-- sticky header -->
+    <header class="shop-header">
+        <div class="logo">
+            <h1>the local shop</h1>
+            <div class="tagline">Fresh Finds, Best Prices</div>
+        </div>
+        <div class="cart-icon" id="cartToggle">
+            <i class="fas fa-shopping-bag"></i>
+            <span class="cart-count" id="cartCount">0</span>
+        </div>
+    </header>
+
+    <!-- hero -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h2>Fresh Finds,<br>Best Prices</h2>
+            <p>Your daily drop of style & comfort — curated just for you.</p>
+            <a href="#products-section" class="shop-now-btn">Shop Now <i class="fas fa-arrow-right" style="margin-left: 8px;"></i></a>
+        </div>
+    </section>
+
+    <!-- products carousel title -->
+    <div class="section-title" id="products-section">Popular right now 🛍️</div>
+
+    <!-- carousel with navigation -->
+    <div class="carousel-container">
+        <div class="carousel" id="productCarousel">
+            <!-- products injected via JS -->
+        </div>
+    </div>
+    <div class="carousel-buttons">
+        <button class="carousel-btn" id="carouselPrev"><i class="fas fa-chevron-left"></i> Prev</button>
+        <button class="carousel-btn" id="carouselNext">Next <i class="fas fa-chevron-right"></i></button>
+    </div>
+
+    <!-- floating WhatsApp -->
+    <a href="https://wa.me/9414176039" target="_blank" class="wa-float" aria-label="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- cart drawer & overlay -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="drawer-header">
+            <h3>Your cart</h3>
+            <button class="close-drawer" id="closeDrawer"><i class="fas fa-times"></i></button>
+        </div>
+        <ul class="cart-items-list" id="cartItemsList">
+            <li style="color: #888; text-align: center; padding: 2rem 0;">Your cart feels lonely...</li>
+        </ul>
+        <div class="customer-fields">
+            <input type="text" id="customerName" placeholder="Your name *" />
+            <input type="tel" id="customerPhone" placeholder="Phone number *" />
+        </div>
+        <!-- UPI section (QR + pay) -->
+        <div class="upi-section">
+            <div><i class="fas fa-qrcode" style="font-size: 1.6rem; opacity: 0.7;"></i></div>
+            <p style="font-weight: 600; margin: 6px 0;">Pay with UPI</p>
+            <button class="upi-btn" id="showUpiQrBtn"><i class="fas fa-eye"></i> Show QR code</button>
+            <div id="qrContainer" class="hidden" style="margin-top: 12px;">
+                <img src="https://chart.googleapis.com/chart?chs=180x180&cht=qr&chl=upi://pay?pa=thelocal@okhdfcbank&pn=The%20Local%20Shop&am=0.00&cu=INR" alt="Scan to pay (demo)" id="upiQR">
+                <p style="font-size: 0.8rem; margin-top: 6px;">UPI ID: thelocal@okhdfcbank</p>
+            </div>
+        </div>
+        <button class="send-order-btn" id="sendOrderBtn"><i class="fas fa-envelope"></i> Send order via email</button>
+        <p style="font-size: 0.75rem; color: #aaa; text-align: center;">You’ll get name, phone & cart on owner’s email</p>
+    </div>
+
+    <!-- mini footer / page indicator -->
+    <hr>
+    <div class="mini-nav">
+        <a href="#home">Home</a>
+        <a href="#products-section">Shop</a>
+        <a href="#">Stores</a>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- EmailJS initialize (replace with your credentials) ----------
+            emailjs.init('YOUR_PUBLIC_KEY');  // 👈 replace with your EmailJS public key
+
+            // ---------- product data (using given product images) ----------
+            const products = [
+                { id: 1, name: 'Classic Runner', price: 1999, image: 'https://i.ibb.co/9H0QVYJQ/61qw-HPDE2-OL-AC-UY1000.jpg' },
+                { id: 2, name: 'Urban Loafer', price: 2499, image: 'https://i.ibb.co/RkCDQ4N1/614ai-M56si-L.jpg' },
+                { id: 3, name: 'Trail Grip', price: 3299, image: 'https://i.ibb.co/PL30Twy/Drop-Step-Low-2-0-Shoes-Grey-KJ1107-01-00-standard.jpg' },
+                { id: 4, name: 'Air Sneaker', price: 2799, image: 'https://i.ibb.co/9H0QVYJQ/61qw-HPDE2-OL-AC-UY1000.jpg' },
+                { id: 5, name: 'Canvas Slip-on', price: 1599, image: 'https://i.ibb.co/RkCDQ4N1/614ai-M56si-L.jpg' },
+                { id: 6, name: 'Fusion Loafers', price: 3999, image: 'https://i.ibb.co/PL30Twy/Drop-Step-Low-2-0-Shoes-Grey-KJ1107-01-00-standard.jpg' }
+            ];
+
+            // ---------- cart ----------
+            let cart = [];
+
+            // DOM elements
+            const cartToggle = document.getElementById('cartToggle');
+            const cartDrawer = document.getElementById('cartDrawer');
+            const drawerOverlay = document.getElementById('drawerOverlay');
+            const closeDrawer = document.getElementById('closeDrawer');
+            const cartItemsList = document.getElementById('cartItemsList');
+            const cartCountSpan = document.getElementById('cartCount');
+            const productCarousel = document.getElementById('productCarousel');
+            const customerName = document.getElementById('customerName');
+            const customerPhone = document.getElementById('customerPhone');
+            const sendOrderBtn = document.getElementById('sendOrderBtn');
+            const showUpiQrBtn = document.getElementById('showUpiQrBtn');
+            const qrContainer = document.getElementById('qrContainer');
+            const upiQR = document.getElementById('upiQR');
+
+            // ---------- render product cards ----------
+            function renderCarousel() {
+                productCarousel.innerHTML = '';
+                products.forEach(prod => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.innerHTML = `
+                        <img src="${prod.image}" alt="${prod.name}" class="product-img" loading="lazy">
+                        <div class="product-name">${prod.name}</div>
+                        <div class="product-price">₹${prod.price}</div>
+                        <button class="add-to-cart" data-id="${prod.id}"><i class="fas fa-cart-plus"></i> Add</button>
+                    `;
+                    productCarousel.appendChild(card);
+                });
+                // attach add to cart events
+                document.querySelectorAll('.add-to-cart').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = parseInt(e.currentTarget.dataset.id);
+                        const product = products.find(p => p.id === id);
+                        addToCart(product);
+                    });
+                });
+            }
+
+            // ---------- cart helpers ----------
+            function addToCart(product) {
+                cart.push({ ...product });
+                updateCartUI();
+                // tiny feedback
+                cartToggle.style.transform = 'scale(1.1)';
+                setTimeout(() => cartToggle.style.transform = '', 150);
+            }
+
+            function removeFromCart(index) {
+                cart.splice(index, 1);
+                updateCartUI();
+            }
+
+            function updateCartUI() {
+                // count
+                cartCountSpan.textContent = cart.length;
+
+                // draw items list
+                if (cart.length === 0) {
+                    cartItemsList.innerHTML = '<li style="color: #888; text-align: center; padding: 2rem 0;">Your cart feels lonely...</li>';
+                } else {
+                    cartItemsList.innerHTML = '';
+                    cart.forEach((item, idx) => {
+                        const li = document.createElement('li');
+                        li.className = 'cart-item';
+                        li.innerHTML = `
+                            <span class="cart-item-info">${item.name} <span class="cart-item-price">(₹${item.price})</span></span>
+                            <button class="remove-item" data-index="${idx}"><i class="fas fa-trash-can"></i></button>
+                        `;
+                        cartItemsList.appendChild(li);
+                    });
+                    // remove events
+                    document.querySelectorAll('.remove-item').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const index = parseInt(e.currentTarget.dataset.index);
+                            removeFromCart(index);
+                        });
+                    });
+                }
+
+                // update QR amount (just for show)
+                const total = cart.reduce((acc, i) => acc + i.price, 0);
+                if (upiQR) {
+                    upiQR.src = `https://chart.googleapis.com/chart?chs=180x180&cht=qr&chl=upi://pay?pa=thelocal@okhdfcbank&pn=The%20Local%20Shop&am=${total}&cu=INR`;
+                }
+            }
+
+            // ---------- drawer open/close ----------
+            function openDrawer() {
+                cartDrawer.classList.add('open');
+                drawerOverlay.style.display = 'block';
+            }
+            function closeDrawerFunc() {
+                cartDrawer.classList.remove('open');
+                drawerOverlay.style.display = 'none';
+            }
+            cartToggle.addEventListener('click', openDrawer);
+            closeDrawer.addEventListener('click', closeDrawerFunc);
+            drawerOverlay.addEventListener('click', closeDrawerFunc);
+
+            // ---------- send order via EmailJS (template placeholders) ----------
+            sendOrderBtn.addEventListener('click', () => {
+                const name = customerName.value.trim();
+                const phone = customerPhone.value.trim();
+                if (!name || !phone) {
+                    alert('Please enter your name and phone number.');
+                    return;
+                }
+                if (cart.length === 0) {
+                    alert('Cart is empty.');
+                    return;
+                }
+
+                // prepare items list as string
+                const itemsList = cart.map(item => `• ${item.name} : ₹${item.price}`).join('\n');
+                const total = cart.reduce((sum, i) => sum + i.price, 0);
+
+                // EmailJS parameters — modify according to your template
+                const templateParams = {
+                    customer_name: name,
+                    customer_phone: phone,
+                    cart_items: itemsList,
+                    total_price: total,
+                    to_email: 'honeyrajput7705@gmail.com',  // owner email hardcoded
+                    reply_to: 'honeyrajput7705@gmail.com'   // same for demo
+                };
+
+                // ⚠️ REPLACE with your actual EmailJS service ID and template ID
+                emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+                    .then(() => {
+                        alert('Order sent successfully! Owner will contact soon.');
+                        // optional: clear cart
+                        cart = [];
+                        updateCartUI();
+                        customerName.value = '';
+                        customerPhone.value = '';
+                        closeDrawerFunc();
+                    })
+                    .catch(err => {
+                        console.error('EmailJS error:', err);
+                        alert('Failed to send. Check EmailJS setup & console.');
+                    });
+            });
+
+            // ---------- UPI QR toggle ----------
+            showUpiQrBtn.addEventListener('click', () => {
+                qrContainer.classList.toggle('hidden');
+                if (!qrContainer.classList.contains('hidden')) {
+                    // update amount again
+                    const total = cart.reduce((acc, i) => acc + i.price, 0);
+                    upiQR.src = `https://chart.googleapis.com/chart?chs=180x180&cht=qr&chl=upi://pay?pa=thelocal@okhdfcbank&pn=The%20Local%20Shop&am=${total}&cu=INR`;
+                }
+            });
+
+            // ---------- auto sliding carousel ----------
+            let autoScrollInterval;
+            const carousel = document.getElementById('productCarousel');
+            const prevBtn = document.getElementById('carouselPrev');
+            const nextBtn = document.getElementById('carouselNext');
+
+            function startAutoSlide() {
+                autoScrollInterval = setInterval(() => {
+                    if (!carousel) return;
+                    // if drawer open, don't slide? just continue, but fine.
+                    if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth) {
+                        carousel.scrollTo({ left: 0, behavior: 'smooth' });
+                    } else {
+                        carousel.scrollBy({ left: 260, behavior: 'smooth' }); // approximate card width + gap
+                    }
+                }, 3500);
+            }
+            function stopAutoSlide() {
+                clearInterval(autoScrollInterval);
+            }
+
+            carousel.addEventListener('mouseenter', stopAutoSlide);
+            carousel.addEventListener('mouseleave', startAutoSlide);
+            prevBtn.addEventListener('click', () => {
+                carousel.scrollBy({ left: -260, behavior: 'smooth' });
+            });
+            nextBtn.addEventListener('click', () => {
+                carousel.scrollBy({ left: 260, behavior: 'smooth' });
+            });
+
+            // ---------- init ----------
+            renderCarousel();
+            updateCartUI();
+            startAutoSlide();
+
+            // smooth "Shop Now" already uses CSS scroll-behavior
+
+            // update QR if cart changes (already inside updateCartUI)
+            // also update on cart change
+        })();
+    </script>
+
+    <!-- instructions for EmailJS setup (visible only as comment) -->
+    <!-- ========== EMAILJS SETUP ==========
+         1. Sign up at emailjs.com (free)
+         2. Create an email service (Gmail, Outlook etc) and note Service ID
+         3. Create an email template with variables: customer_name, customer_phone, cart_items, total_price, to_email
+         4. Copy your Public Key (from Account > API Keys)
+         5. Replace 'YOUR_PUBLIC_KEY', 'YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID' in the script above.
+         The owner email is already set to honeyrajput7705@gmail.com inside templateParams.
+    -->
+</body>
+</html>
